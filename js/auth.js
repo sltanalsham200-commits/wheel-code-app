@@ -180,19 +180,55 @@ function unlockApp() {
     if (typeof initApp === 'function') {
         initApp().catch(err => console.error('فشل تهيئة التطبيق:', err));
     }
+    _resetIdleTimer();
+}
+
+// ==========================================
+// 🔒 قفل تلقائي بعد خمول (10 دقائق)
+// ==========================================
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+let _idleTimer = null;
+
+function _resetIdleTimer() {
+    if (_idleTimer) clearTimeout(_idleTimer);
+    const mainApp = document.getElementById('main-app');
+    const lockScreen = document.getElementById('lock-screen');
+    if (!mainApp || mainApp.classList.contains('hidden')) return;
+    if (!lockScreen || !lockScreen.classList.contains('hidden')) return;
+    _idleTimer = setTimeout(() => { lockApp(); }, IDLE_TIMEOUT_MS);
+}
+
+function _setupIdleListeners() {
+    ['touchstart', 'click', 'keydown', 'scroll'].forEach(ev => {
+        document.addEventListener(ev, _resetIdleTimer, { passive: true });
+    });
+}
+
+async function lockApp() {
+    const stored = await getStoredPin();
+    if (!stored) return;
+    if (_idleTimer) { clearTimeout(_idleTimer); _idleTimer = null; }
+    document.getElementById('main-app').classList.add('hidden');
+    const lockScreen = document.getElementById('lock-screen');
+    lockScreen.classList.remove('hidden');
+    lockScreen.classList.add('active');
+    const pinInput = document.getElementById('login-pin');
+    if (pinInput) pinInput.value = '';
+    hideLockError();
+    await initLockScreen();
 }
 
 async function changePin() {
     const oldPin = prompt('أدخل PIN الحالي:');
     if (!oldPin) return;
     const ok = await verifyPin(oldPin);
-    if (!ok) { alert('PIN الحالي غير صحيح'); return; }
+    if (!ok) { showAlert('PIN الحالي غير صحيح'); return; }
     const newPin = prompt('أدخل PIN الجديد (6 أرقام):');
-    if (!newPin || newPin.length !== 6 || !/^\d+$/.test(newPin)) { alert('PIN الجديد يجب أن يكون 6 أرقام'); return; }
+    if (!newPin || newPin.length !== 6 || !/^\d+$/.test(newPin)) { showAlert('PIN الجديد يجب أن يكون 6 أرقام'); return; }
     const confirmPin = prompt('تأكيد PIN الجديد:');
-    if (newPin !== confirmPin) { alert('الرمزان غير متطابقين'); return; }
+    if (newPin !== confirmPin) { showAlert('الرمزان غير متطابقين'); return; }
     await savePin(newPin);
-    alert('✅ تم تغيير PIN بنجاح');
+    showAlert('✅ تم تغيير PIN بنجاح');
 }
 
 async function handleForgotPin() {
@@ -210,10 +246,10 @@ async function handleForgotPin() {
         await DB.clearAll();
         await DB.put('app_settings', { key: 'pin_hash', value: null });
         await clearLoginAttempts();
-        alert('تم مسح كل البيانات. سيُطلب منك تعيين رمز جديد.');
+        showAlert('تم مسح كل البيانات. سيُطلب منك تعيين رمز جديد.');
         location.reload();
     } catch (e) {
-        alert('فشل المسح: ' + e.message);
+        showAlert('فشل المسح: ' + e.message);
     }
 }
 
@@ -240,11 +276,13 @@ function bindAuthEvents() {
     if (forgotBtn) forgotBtn.addEventListener('click', handleForgotPin);
     document.getElementById('setup-pin-2').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSetupPin(); });
     document.getElementById('login-pin').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+    _setupIdleListeners();
 }
 
 window.Auth = {
     init: initLockScreen,
     bind: bindAuthEvents,
     changePin: changePin,
-    verifyPin: verifyPin
+    verifyPin: verifyPin,
+    lock: lockApp
 };

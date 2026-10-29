@@ -14,6 +14,19 @@ let currentPackage = {
 let previousPackage = null;
 
 // تهيئة قسم البيانات
+// [UX] تحديث شكل حقل التاريخ عند تغييره
+function updateDateFieldState() {
+    const dateInput = document.getElementById('data-date');
+    if (!dateInput) return;
+    const wrapper = dateInput.parentElement;
+    if (!wrapper) return;
+    if (dateInput.value) {
+        wrapper.classList.add('has-value');
+    } else {
+        wrapper.classList.remove('has-value');
+    }
+}
+
 async function initData() {
   const packages = await DB.getAll('packages');
   if (packages.length > 0) {
@@ -22,6 +35,7 @@ async function initData() {
         previousPackage = null;
     }
   updateCounterDisplay();
+    updateDateFieldState();
   await updateKnownItems();
 }
 
@@ -40,10 +54,10 @@ async function handleAddRound() {
   const minuteVal = document.getElementById('data-minute').value.trim();
 
   // التحقق
-  if (!dateVal) { alert('أدخل تاريخ الحزمة أولاً'); return; }
-  if (!dayVal) { alert('أدخل يوم الحزمة أولاً'); return; }
-  if (!roundVal) { alert('رقم الجولة إجباري'); return; }
-  if (!itemVal) { alert('اسم العنصر إجباري'); return; }
+  if (!dateVal) { showAlert('أدخل تاريخ الحزمة أولاً'); return; }
+  if (!dayVal) { showAlert('أدخل يوم الحزمة أولاً'); return; }
+  if (!roundVal) { showAlert('رقم الجولة إجباري'); return; }
+  if (!itemVal) { showAlert('اسم العنصر إجباري'); return; }
 
   // سؤال الاستمرارية: عند أول إضافة في حزمة جديدة (إن وُجدت حزمة سابقة)
   if (currentPackage.rounds.length === 0 && previousPackage !== null && currentPackage.is_continuous === null) {
@@ -58,14 +72,14 @@ async function handleAddRound() {
   // التحقق من صحة الأرقام
         const roundNum = parseInt(roundVal, 10);
         if (!Number.isInteger(roundNum) || roundNum < 1) {
-            alert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
+            showAlert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
             return;
         }
         let hourNum = null;
         if (hourVal !== '') {
             hourNum = parseInt(hourVal, 10);
             if (!Number.isInteger(hourNum) || hourNum < 0 || hourNum > 23) {
-                alert('الساعة يجب أن تكون بين 0 و 23');
+                showAlert('الساعة يجب أن تكون بين 0 و 23');
                 return;
             }
         }
@@ -73,7 +87,7 @@ async function handleAddRound() {
         if (minuteVal !== '') {
             minuteNum = parseInt(minuteVal, 10);
             if (!Number.isInteger(minuteNum) || minuteNum < 0 || minuteNum > 59) {
-                alert('الدقيقة يجب أن تكون بين 0 و 59');
+                showAlert('الدقيقة يجب أن تكون بين 0 و 59');
                 return;
             }
         }
@@ -106,13 +120,14 @@ async function handleAddRound() {
 
 // حفظ الحزمة
 async function handleSavePackage() {
+    const restore = setBusy(document.getElementById('btn-save-package'), '⏳ حفظ...');
   if (currentPackage.rounds.length === 0) {
-    alert('لا توجد بيانات لحفظها. أضف جولة واحدة على الأقل.');
+    showAlert('لا توجد بيانات لحفظها. أضف جولة واحدة على الأقل.');
     return;
   }
 
   if (!currentPackage.date || !currentPackage.day) {
-    alert('أدخل تاريخ ويوم الحزمة أولاً');
+    showAlert('أدخل تاريخ ويوم الحزمة أولاً');
     return;
   }
 
@@ -156,10 +171,12 @@ async function handleSavePackage() {
   };
 
   document.getElementById('data-date').value = '';
-  document.getElementById('data-day').value = '';
+    document.getElementById('data-day').value = '';
+    updateDateFieldState();
   updateCounterDisplay();
 
-  alert('تم حفظ الحزمة بنجاح (' + roundsCount + ' جولة). يمكنك بدء حزمة جديدة.');
+  if (typeof restore === 'function') restore();
+    showAlert('تم حفظ الحزمة بنجاح (' + roundsCount + ' جولة). يمكنك بدء حزمة جديدة.');
 }
 
 // تحديث قائمة العناصر المعروفة (datalist)
@@ -205,6 +222,8 @@ function askContinuity() {
 function bindDataEvents() {
   document.getElementById('btn-add-round').addEventListener('click', handleAddRound);
   document.getElementById('btn-save-package').addEventListener('click', handleSavePackage);
+    const dateInput = document.getElementById('data-date');
+    if (dateInput) dateInput.addEventListener('change', updateDateFieldState);
 }
 
 // تصدير
@@ -216,6 +235,7 @@ function resetData() {
     const dayInput = document.getElementById('data-day');
     if (dateInput) dateInput.value = '';
     if (dayInput) dayInput.value = '';
+    updateDateFieldState();
 }
 
 window.Data = {

@@ -60,6 +60,7 @@ async function handleToggleLearning() {
 // تصدير كل البيانات كملف JSON
 async function handleExport() {
   try {
+            const restore = setBusy(document.getElementById('btn-export'), '⏳ تصدير...');
     const data = await DB.exportAll();
 
     // إضافة معلومات النسخة
@@ -84,10 +85,12 @@ async function handleExport() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    alert('تم تصدير النسخة الاحتياطية بنجاح.');
+    if (typeof restore === 'function') restore();
+            showAlert('تم تصدير النسخة الاحتياطية بنجاح.');
   } catch (err) {
     console.error(err);
-    alert('فشل التصدير: ' + err.message);
+    if (typeof restore === 'function') restore();
+            showAlert('فشل التصدير: ' + err.message);
   }
 }
 
@@ -96,12 +99,13 @@ async function handleImport(file) {
   if (!file) return;
 
   try {
+            const restore = setBusy(document.getElementById('btn-import'), '⏳ استيراد...');
     const text = await file.text();
     const data = JSON.parse(text);
 
     // التحقق من صحة الملف
     if (!data._meta || data._meta.app !== 'WheelCodeApp') {
-      alert('هذا الملف ليس نسخة احتياطية صالحة من هذا التطبيق.');
+      showAlert('هذا الملف ليس نسخة احتياطية صالحة من هذا التطبيق.');
       return;
     }
 
@@ -125,26 +129,29 @@ async function handleImport(file) {
     if (typeof Data !== 'undefined' && Data.init) await Data.init();
     if (typeof Prediction !== 'undefined' && Prediction.init) await Prediction.init();
 
-    alert('تم استيراد النسخة الاحتياطية بنجاح.');
+    if (typeof restore === 'function') restore();
+            showAlert('تم استيراد النسخة الاحتياطية بنجاح.');
   } catch (err) {
     console.error(err);
-    alert('فشل الاستيراد: ' + err.message);
+    if (typeof restore === 'function') restore();
+            showAlert('فشل الاستيراد: ' + err.message);
   }
 }
 
 // مسح كل البيانات
 async function handleClearAll() {
+            const restore = setBusy(document.getElementById('btn-clear-all'), '⏳ مسح...');
   const confirmed = await confirmModal(
     'مسح جميع البيانات',
     'سيتم حذف كل الحزم والجولات والتوقعات والإحصائيات نهائياً. لا يمكن التراجع. هل أنت متأكد؟'
   );
-  if (!confirmed) return;
+  if (!confirmed) { if (typeof restore === 'function') restore(); return; }
 
   const doubleConfirm = await confirmModal(
     'تأكيد نهائي',
     'هل أنت متأكد 100%؟ كل شيء سيُحذف ولا يمكن استرجاعه.'
   );
-  if (!doubleConfirm) return;
+  if (!doubleConfirm) { if (typeof restore === 'function') restore(); return; }
 
   await DB.clearAll();
 
@@ -159,7 +166,8 @@ async function handleClearAll() {
   if (typeof Data !== 'undefined' && Data.init) await Data.init();
   if (typeof Prediction !== 'undefined' && Prediction.init) await Prediction.init();
 
-  alert('تم مسح جميع البيانات. التطبيق عاد لحالة البداية.');
+  if (typeof restore === 'function') restore();
+            showAlert('تم مسح جميع البيانات. التطبيق عاد لحالة البداية.');
 }
 
 // نافذة تأكيد (Modal) عامة

@@ -1,5 +1,5 @@
 // اسم الكاش - نغيره يدوياً مع كل تحديث كبير
-const CACHE_VERSION = 'wheel-v1.8';
+const CACHE_VERSION = 'wheel-v2.2';
 const CACHE_NAME = `wheel-cache-${CACHE_VERSION}`;
 
 // الملفات التي سيتم تخزينها مؤقتاً
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './icon-512.png',
   './icon-maskable-512.png',
   './css/main.css',
+  './js/utils.js',
   './js/db.js',
   './js/auth.js',
   './js/data.js',

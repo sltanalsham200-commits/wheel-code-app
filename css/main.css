@@ -1058,3 +1058,61 @@ body::after {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ==========================================
+   📅 حقل التاريخ — إخفاء النص الافتراضي المزعج
+   ========================================== */
+
+.date-wrapper {
+    position: relative;
+    display: block;
+}
+
+/* النص الدلالي العربي فوق الحقل */
+.date-wrapper::before {
+    content: 'اختر التاريخ 📅';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.2s ease;
+}
+
+/* إخفاء النص عند وجود قيمة */
+.date-wrapper.has-value::before {
+    opacity: 0;
+}
+
+/* إخفاء placeholder الداخلي في webkit (Android/Chrome) */
+input[type="date"]::-webkit-datetime-edit {
+    color: transparent;
+    transition: color 0.2s ease;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit,
+input[type="date"].has-value::-webkit-datetime-edit,
+.date-wrapper.has-value input[type="date"]::-webkit-datetime-edit {
+    color: var(--text);
+}
+
+/* تكبير أيقونة التقويم وتبييضها */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.9) sepia(0.5) saturate(3) hue-rotate(15deg);
+    cursor: pointer;
+    opacity: 0.85;
+    width: 20px;
+    height: 20px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Firefox */
+input[type="date"] {
+    color-scheme: dark;
+}

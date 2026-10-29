@@ -60,22 +60,22 @@ async function handleStartSession() {
   const hourVal = document.getElementById('pred-hour').value.trim();
   const minuteVal = document.getElementById('pred-minute').value.trim();
 
-  if (!roundVal) { alert('رقم الجولة إجباري'); return; }
-  if (!itemVal) { alert('اسم العنصر إجباري'); return; }
+  if (!roundVal) { showAlert('رقم الجولة إجباري'); return; }
+  if (!itemVal) { showAlert('اسم العنصر إجباري'); return; }
 
   await refreshLearningStatus();
 
   sessionState.active = true;
   const roundNum = parseInt(roundVal, 10);
         if (!Number.isInteger(roundNum) || roundNum < 1) {
-            alert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
+            showAlert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
             return;
         }
         let hourNum = null;
         if (hourVal !== '') {
             hourNum = parseInt(hourVal, 10);
             if (!Number.isInteger(hourNum) || hourNum < 0 || hourNum > 23) {
-                alert('الساعة يجب أن تكون بين 0 و 23');
+                showAlert('الساعة يجب أن تكون بين 0 و 23');
                 return;
             }
         }
@@ -83,7 +83,7 @@ async function handleStartSession() {
         if (minuteVal !== '') {
             minuteNum = parseInt(minuteVal, 10);
             if (!Number.isInteger(minuteNum) || minuteNum < 0 || minuteNum > 59) {
-                alert('الدقيقة يجب أن تكون بين 0 و 59');
+                showAlert('الدقيقة يجب أن تكون بين 0 و 59');
                 return;
             }
         }
@@ -113,7 +113,7 @@ async function _generateNextPrediction() {
   });
 
   if (!result || !result.predicted_item) {
-    alert('لا توجد بيانات كافية. أضف المزيد من الجولات في قسم البيانات أولاً.');
+    showAlert('لا توجد بيانات كافية. أضف المزيد من الجولات في قسم البيانات أولاً.');
     handleStopSession();
     return;
   }
@@ -220,6 +220,7 @@ async function handleNext() {
 
 // معالجة زر "ستوب"
 async function handleStopSession() {
+    const restore = setBusy(document.getElementById('btn-stop-session'), '⏳ معالجة...');
   if (sessionState.active && sessionState.totalCount > 0) {
     if (typeof Analysis !== 'undefined' && Analysis.run) {
       try { await Analysis.run(); } catch (e) { console.warn(e); }
@@ -240,6 +241,7 @@ async function handleStopSession() {
   document.getElementById('pred-item').value = '';
   document.getElementById('pred-hour').value = '';
   document.getElementById('pred-minute').value = '';
+    if (typeof restore === 'function') restore();
 }
 
 // سؤال العنصر الفعلي عند الخطأ

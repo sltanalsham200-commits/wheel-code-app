@@ -62,7 +62,7 @@ async function initApp() {
     console.log('✅ التطبيق جاهز للعمل');
   } catch (err) {
     console.error('خطأ في تهيئة التطبيق:', err);
-    alert('حدث خطأ أثناء تهيئة التطبيق. راجع Console للتفاصيل.');
+    showAlert('حدث خطأ أثناء تهيئة التطبيق. راجع Console للتفاصيل.');
   }
 }
 
@@ -123,7 +123,7 @@ function setupInstallButton() {
 
     // حالة 1: التطبيق مثبت
     if (isAppInstalled()) {
-      alert('التطبيق مثبت بالفعل على شاشة هاتفك.');
+      showAlert('التطبيق مثبت بالفعل على شاشة هاتفك.');
       return;
     }
 
@@ -147,7 +147,7 @@ function setupInstallButton() {
     } else {
                 if (installHint) installHint.classList.add('hidden');
       // حالة 4: المتصفح لا يدعم التثبيت التلقائي
-      alert('لتثبيت التطبيق:\n\n1. افتح القائمة (⋮) في Chrome\n2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"\n\nأو استخدم Safari على الآيفون ثم زر المشاركة.');
+      showAlert('لتثبيت التطبيق:\n\n1. افتح القائمة (⋮) في Chrome\n2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"\n\nأو استخدم Safari على الآيفون ثم زر المشاركة.');
     }
   });
 }
