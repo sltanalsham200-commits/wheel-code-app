@@ -1,7 +1,7 @@
 # احتياطيات
 *.bak
 *.bak2
-*.bak3
+*.bak*
 
 # أيقونة الأصل الكبيرة
 icon-original.png

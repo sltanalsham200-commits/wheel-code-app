@@ -1,5 +1,5 @@
 // اسم الكاش - نغيره يدوياً مع كل تحديث كبير
-const CACHE_VERSION = 'wheel-v1.5';
+const CACHE_VERSION = 'wheel-v1.8';
 const CACHE_NAME = `wheel-cache-${CACHE_VERSION}`;
 
 // الملفات التي سيتم تخزينها مؤقتاً

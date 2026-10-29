@@ -141,41 +141,49 @@ const Analysis = {
   // 4. حفظ الأنماط في IndexedDB
   // ==========================================
   async _savePatterns(patterns) {
-    // مسح الأنماط القديمة
-    const db = await DB.open();
-    await new Promise((resolve) => {
-      const tx = db.transaction('analysis_cache', 'readwrite');
-      tx.objectStore('analysis_cache').clear();
-      tx.oncomplete = resolve;
-    });
+            const db = await DB.open();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('analysis_cache', 'readwrite');
+                const store = tx.objectStore('analysis_cache');
+                store.clear();
+                for (const dimension in patterns) {
+                    for (const key in patterns[dimension]) {
+                        for (const nextItem in patterns[dimension][key]) {
+                            store.add({
+                                dimension: dimension,
+                                key_value: key,
+                                next_item: nextItem,
+                                count: patterns[dimension][key][nextItem]
+                            });
+                        }
+                    }
+                }
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+                tx.onabort = () => reject(tx.error);
+            });
+        },
 
-    // حفظ الأنماط الجديدة
-    for (const dimension in patterns) {
-      for (const key in patterns[dimension]) {
-        for (const nextItem in patterns[dimension][key]) {
-          await DB.add('analysis_cache', {
-            dimension: dimension,
-            key_value: key,
-            next_item: nextItem,
-            count: patterns[dimension][key][nextItem]
-          });
-        }
-      }
-    }
-  },
-
-  // ==========================================
-  // 5. الحصول على توزيع الاحتمالات لبعد معين
-  // ==========================================
-  async _getDistribution(dimension, keyValue) {
-    const cache = await DB.getAll('analysis_cache');
-    const relevant = cache.filter(c => c.dimension === dimension && c.key_value === keyValue);
-    if (relevant.length === 0) return {};
-    const total = relevant.reduce((s, c) => s + c.count, 0);
-    const dist = {};
-    relevant.forEach(c => dist[c.next_item] = c.count / total);
-    return dist;
-  },
+        async _getDistribution(dimension, keyValue, patternCache = null) {
+            if (patternCache) {
+                const key = dimension + '::' + keyValue;
+                const counts = patternCache[key];
+                if (!counts) return {};
+                let total = 0;
+                for (const item in counts) total += counts[item];
+                if (total === 0) return {};
+                const dist = {};
+                for (const item in counts) dist[item] = counts[item] / total;
+                return dist;
+            }
+            const all = await DB.getAll('analysis_cache');
+            const relevant = all.filter(c => c.dimension === dimension && c.key_value === keyValue);
+            if (relevant.length === 0) return {};
+            const total = relevant.reduce((s, c) => s + c.count, 0);
+            const dist = {};
+            relevant.forEach(c => dist[c.next_item] = c.count / total);
+            return dist;
+        },
 
   // ==========================================
   // 6. حساب درجات الفجوة (بدون مفتاح)
@@ -263,7 +271,7 @@ const Analysis = {
     };
 
     // 1. ماركوف
-    addDist('markov', await this._getDistribution('markov', item_name));
+    addDist('markov', await this._getDistribution('markov', item_name, patternCache));
 
     // 2. الفجوة
     const gapScores = await this._computeGapScores(round_number);
@@ -271,25 +279,25 @@ const Analysis = {
 
     // 3. الساعة
     if (hour !== null && hour !== undefined) {
-      addDist('time_hour', await this._getDistribution('time_hour', String(hour)));
+      addDist('time_hour', await this._getDistribution('time_hour', String(hour), patternCache));
     }
 
     // 4. الدقيقة (bucket)
     if (minute !== null && minute !== undefined) {
       const bucket = Math.floor(minute / 5) * 5;
-      addDist('time_minute', await this._getDistribution('time_minute', String(bucket)));
+      addDist('time_minute', await this._getDistribution('time_minute', String(bucket), patternCache));
     }
 
     // 5. اليوم
-    if (day) addDist('day', await this._getDistribution('day', day));
+    if (day) addDist('day', await this._getDistribution('day', day, patternCache));
 
     // 6. التاريخ
-    if (date) addDist('date', await this._getDistribution('date', date));
+    if (date) addDist('date', await this._getDistribution('date', date, patternCache));
 
     // 7. رقم الجولة (mods)
     for (const mod of [8, 10, 17]) {
       const dimName = 'round_mod_' + mod;
-      const dist = await this._getDistribution(dimName, String(round_number % mod));
+      const dist = await this._getDistribution(dimName, String(round_number % mod), patternCache);
       addDist(dimName, dist);
     }
 
@@ -297,7 +305,7 @@ const Analysis = {
     const recent = await this._getRecentItems(round_number, 2);
     if (recent.length >= 2) {
       const bigramKey = `${recent[1]}->${recent[0]}`;
-      addDist('bigram', await this._getDistribution('bigram', bigramKey));
+      addDist('bigram', await this._getDistribution('bigram', bigramKey, patternCache));
     }
 
     // اختيار الأعلى

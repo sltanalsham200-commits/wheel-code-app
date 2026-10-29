@@ -119,6 +119,8 @@ function setupInstallButton() {
   if (!installBtn) return;
 
   installBtn.addEventListener('click', async () => {
+        if (installHint) installHint.classList.add('hidden');
+
     // حالة 1: التطبيق مثبت
     if (isAppInstalled()) {
       alert('التطبيق مثبت بالفعل على شاشة هاتفك.');
@@ -127,7 +129,7 @@ function setupInstallButton() {
 
     // حالة 2: iOS → تعليمات
     if (isIOS()) {
-      installHint.classList.remove('hidden');
+      if (installHint) installHint.classList.remove('hidden');
       return;
     }
 
@@ -140,8 +142,10 @@ function setupInstallButton() {
       if (outcome === 'accepted') {
         installBtn.innerText = 'تم التثبيت ✔';
         installBtn.disabled = true;
+                if (installHint) installHint.classList.add('hidden');
       }
     } else {
+                if (installHint) installHint.classList.add('hidden');
       // حالة 4: المتصفح لا يدعم التثبيت التلقائي
       alert('لتثبيت التطبيق:\n\n1. افتح القائمة (⋮) في Chrome\n2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"\n\nأو استخدم Safari على الآيفون ثم زر المشاركة.');
     }
