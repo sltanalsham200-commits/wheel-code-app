@@ -1,0 +1,573 @@
+/* ================= الأساسيات ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #141414;
+  --bg-input: #1a1a1a;
+  --border: #2a2a2a;
+  --gold: #f39c12;
+  --gold-dark: #b9770e;
+  --text: #ffffff;
+  --text-muted: #888;
+  --success: #2ecc71;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  min-height: 100vh;
+  font-size: 16px;
+}
+
+/* ================= الشاشات ================= */
+.screen {
+  display: none;
+  padding: 16px;
+  padding-bottom: 80px;
+  min-height: 100vh;
+  animation: fadeIn 0.25s ease;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ================= العناوين ================= */
+.app-title {
+  color: var(--gold);
+  font-size: 26px;
+  text-align: center;
+  margin-bottom: 6px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.app-subtitle {
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+h2 {
+  color: var(--gold);
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+h3 {
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* ================= شاشة القفل ================= */
+#lock-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#lock-screen.active {
+  display: flex;
+}
+
+.lock-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.lock-label {
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.pin-input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 20px;
+  text-align: center;
+  letter-spacing: 8px;
+}
+
+.pin-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* ================= الأزرار ================= */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-save,
+.btn-stop,
+.btn-correct,
+.btn-wrong,
+.btn-next,
+.menu-btn,
+.toggle-btn,
+.btn-back {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: #000;
+  font-size: 16px;
+}
+
+.btn-primary:active {
+  background: var(--gold-dark);
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  padding: 12px;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.btn-secondary:active {
+  border-color: var(--gold);
+}
+
+.btn-danger {
+  padding: 12px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 14px;
+}
+
+.btn-save {
+  width: 100%;
+  padding: 16px;
+  background: var(--success);
+  color: #fff;
+  font-size: 17px;
+}
+
+.btn-save:active {
+  background: #27ae60;
+}
+
+.btn-stop {
+  width: 100%;
+  padding: 14px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 15px;
+}
+
+.btn-correct {
+  flex: 1;
+  padding: 18px;
+  background: var(--success);
+  color: #fff;
+  font-size: 18px;
+}
+
+.btn-wrong {
+  flex: 1;
+  padding: 18px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 18px;
+}
+
+.btn-next {
+  flex: 1;
+  padding: 18px;
+  background: var(--gold);
+  color: #000;
+  font-size: 18px;
+}
+
+.btn-back {
+  padding: 8px 14px;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* ================= الشاشة الرئيسية ================= */
+#screen-home.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding-bottom: 16px;
+}
+
+.home-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.menu-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: right;
+  width: 100%;
+}
+
+.menu-btn:active {
+  border-color: var(--gold);
+  background: #1a1a1a;
+}
+
+.menu-title {
+  display: block;
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.menu-desc {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ================= الشريط العلوي ================= */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-bar h2 {
+  margin: 0;
+  flex: 1;
+}
+
+/* ================= الصندوق والمجموعات ================= */
+.package-box,
+.entry-box,
+.input-box,
+.admin-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.counter-number {
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.success-text {
+  color: var(--success);
+  text-align: center;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.error-text {
+  color: var(--danger);
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+/* ================= قسم التوقع ================= */
+.session-info {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+#learning-status {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.prediction-box {
+  background: var(--bg-card);
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 24px 16px;
+  margin: 16px 0;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(243,156,18,0.2);
+}
+
+.prediction-round {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.prediction-round span {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.prediction-item {
+  color: var(--gold);
+  font-size: 32px;
+  font-weight: 800;
+  margin: 16px 0;
+  letter-spacing: 1px;
+}
+
+.feedback-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stop-box {
+  margin-top: 16px;
+}
+
+/* ================= قسم الإحصائيات ================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-card:nth-child(1) {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(243,156,18,0.15), var(--bg-card));
+  border-color: var(--gold);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.stat-value {
+  color: var(--gold);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.learning-toggle-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  background: var(--success);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.toggle-btn.off {
+  background: var(--danger);
+}
+
+.admin-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ================= Modal ================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.modal-box h3 {
+  color: var(--gold);
+  border: none;
+  padding: 0;
+  margin-bottom: 14px;
+  font-size: 18px;
+}
+
+.modal-box p {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.modal-buttons .btn-yes {
+  background: var(--success);
+  color: #fff;
+}
+
+.modal-buttons .btn-no {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.modal-buttons .btn-ok {
+  background: var(--gold);
+  color: #000;
+}
+
+/* ================= توافق مع الشاشات الصغيرة ================= */
+@media (max-width: 360px) {
+  .app-title { font-size: 22px; }
+  .menu-title { font-size: 16px; }
+  .prediction-item { font-size: 26px; }
+  .stat-value { font-size: 22px; }
+}

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>كاشف شيفرة العجلة</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- ================= شاشة القفل ================= -->
+  <div id="lock-screen" class="screen active">
+    <div class="lock-box">
+      <h1 class="app-title">كاشف شيفرة العجلة</h1>
+      <p class="app-subtitle">نظام تحليلي متقدم</p>
+
+      <div id="setup-pin-section" class="hidden">
+        <p class="lock-label">قم بتعيين رمز PIN (6 أرقام)</p>
+        <input type="password" id="setup-pin-1" maxlength="6" inputmode="numeric" class="pin-input" placeholder="رمز PIN">
+        <input type="password" id="setup-pin-2" maxlength="6" inputmode="numeric" class="pin-input" placeholder="تأكيد الرمز">
+        <button id="btn-setup-pin" class="btn-primary">تعيين الرمز</button>
+      </div>
+
+      <div id="login-pin-section" class="hidden">
+        <p class="lock-label">أدخل رمز PIN</p>
+        <input type="password" id="login-pin" maxlength="6" inputmode="numeric" class="pin-input" placeholder="رمز PIN">
+        <button id="btn-login" class="btn-primary">دخول</button>
+      </div>
+
+      <p id="lock-error" class="error-text hidden"></p>
+    </div>
+  </div>
+
+  <!-- ================= التطبيق الرئيسي ================= -->
+  <div id="main-app" class="hidden">
+
+    <!-- الشاشة الرئيسية -->
+    <div id="screen-home" class="screen active">
+      <div class="home-header">
+        <h1 class="app-title">كاشف شيفرة العجلة</h1>
+        <p class="app-subtitle">نظام تحليلي متقدم</p>
+      </div>
+      <div class="home-menu">
+        <button id="btn-goto-data" class="menu-btn">
+          <span class="menu-title">قسم البيانات</span>
+          <span class="menu-desc">إدخال الجولات والحزم</span>
+        </button>
+        <button id="btn-goto-prediction" class="menu-btn">
+          <span class="menu-title">قسم التوقع</span>
+          <span class="menu-desc">التنبؤ بالجولة التالية</span>
+        </button>
+        <button id="btn-goto-stats" class="menu-btn">
+          <span class="menu-title">الإحصائيات</span>
+          <span class="menu-desc">نسبة النجاح والإعدادات</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- قسم البيانات -->
+    <div id="screen-data" class="screen">
+      <div class="top-bar">
+        <button class="btn-back" data-back="home">رجوع</button>
+        <h2>قسم البيانات</h2>
+      </div>
+
+      <div class="package-box">
+        <h3>معلومات الحزمة الحالية</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label>التاريخ</label>
+            <input type="date" id="data-date">
+          </div>
+          <div class="input-group">
+            <label>اليوم</label>
+            <input type="text" id="data-day" placeholder="مثال: الأحد">
+          </div>
+        </div>
+        <div class="counter-row">
+          <span>الإدخالات في الحزمة:</span>
+          <span id="data-counter" class="counter-number">0</span>
+        </div>
+      </div>
+
+      <div class="entry-box">
+        <h3>إدخال جولة</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label>رقم الجولة *</label>
+            <input type="number" id="data-round" min="1" placeholder="إجباري">
+          </div>
+          <div class="input-group">
+            <label>اسم العنصر *</label>
+            <input type="text" id="data-item" list="known-items" placeholder="اكتب اسم العنصر">
+            <datalist id="known-items"></datalist>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>الساعة (0-23)</label>
+            <input type="number" id="data-hour" min="0" max="23" placeholder="00">
+          </div>
+          <div class="input-group">
+            <label>الدقيقة (0-59)</label>
+            <input type="number" id="data-minute" min="0" max="59" placeholder="00">
+          </div>
+        </div>
+        <button id="btn-add-round" class="btn-primary">إضافة</button>
+        <p id="add-success" class="success-text hidden">تم الحفظ</p>
+      </div>
+
+      <div class="save-box">
+        <button id="btn-save-package" class="btn-save">حفظ الحزمة</button>
+      </div>
+    </div>
+
+    <!-- قسم التوقع -->
+    <div id="screen-prediction" class="screen">
+      <div class="top-bar">
+        <button class="btn-back" data-back="home">رجوع</button>
+        <h2>قسم التوقع</h2>
+      </div>
+
+      <div class="session-info">
+        <p>حالة التعلم: <span id="learning-status">مفعّل</span></p>
+      </div>
+
+      <div class="input-box">
+        <h3>بيانات الجولة الحالية</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label>رقم الجولة *</label>
+            <input type="number" id="pred-round" min="1" placeholder="إجباري">
+          </div>
+          <div class="input-group">
+            <label>اسم العنصر *</label>
+            <input type="text" id="pred-item" list="known-items" placeholder="اسم العنصر">
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>الساعة</label>
+            <input type="number" id="pred-hour" min="0" max="23" placeholder="00">
+          </div>
+          <div class="input-group">
+            <label>الدقيقة</label>
+            <input type="number" id="pred-minute" min="0" max="59" placeholder="00">
+          </div>
+        </div>
+        <button id="btn-start-session" class="btn-primary">ابدأ</button>
+      </div>
+
+      <div id="prediction-result" class="prediction-box hidden">
+        <p class="prediction-round">الجولة <span id="prediction-round-num">?</span></p>
+        <p class="prediction-item" id="prediction-item-name">-</p>
+
+        <div id="feedback-buttons" class="feedback-row">
+          <button id="btn-correct" class="btn-correct">صح</button>
+          <button id="btn-wrong" class="btn-wrong">خطأ</button>
+        </div>
+
+        <div id="next-buttons" class="feedback-row hidden">
+          <button id="btn-next" class="btn-next">التالي</button>
+        </div>
+      </div>
+
+      <div class="stop-box">
+        <button id="btn-stop-session" class="btn-stop">ستوب (إيقاف الجلسة)</button>
+      </div>
+    </div>
+
+    <!-- قسم الإحصائيات -->
+    <div id="screen-stats" class="screen">
+      <div class="top-bar">
+        <button class="btn-back" data-back="home">رجوع</button>
+        <h2>الإحصائيات</h2>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">نسبة النجاح</span>
+          <span class="stat-value" id="stats-success-rate">0%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">إجمالي الجولات</span>
+          <span class="stat-value" id="stats-total-rounds">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">عدد الحزم</span>
+          <span class="stat-value" id="stats-total-packages">0</span>
+        </div>
+      </div>
+
+      <div class="learning-toggle-box">
+        <label>مفتاح التعلم</label>
+        <button id="btn-toggle-learning" class="toggle-btn">مفعّل</button>
+      </div>
+
+      <div class="admin-box">
+        <button id="btn-export" class="btn-secondary">تصدير نسخة احتياطية</button>
+        <button id="btn-import" class="btn-secondary">استيراد نسخة</button>
+        <input type="file" id="import-file" accept=".json" class="hidden">
+        <button id="btn-change-pin" class="btn-secondary">تغيير رمز PIN</button>
+        <button id="btn-clear-all" class="btn-danger">مسح جميع البيانات</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- نافذة الأسئلة (Modal) -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 id="modal-title"></h3>
+      <p id="modal-message"></p>
+      <div id="modal-buttons" class="modal-buttons"></div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/prediction.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/backup.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
