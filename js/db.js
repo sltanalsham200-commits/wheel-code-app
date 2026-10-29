@@ -132,7 +132,9 @@ async function dbExportAll() {
   data.rounds = await dbGetAll('rounds');
   data.analysis_cache = await dbGetAll('analysis_cache');
   data.predictions_log = await dbGetAll('predictions_log');
-  data.app_settings = await dbGetAll('app_settings');
+  const PROTECTED_KEYS = ['pin_hash', 'login_attempts', 'lockout_until'];
+    const settings = await dbGetAll('app_settings');
+    data.app_settings = settings.filter(s => !PROTECTED_KEYS.includes(s.key));
   return data;
 }
 
@@ -147,14 +149,21 @@ async function dbImportAll(data) {
     tx.objectStore('rounds').clear();
     tx.objectStore('analysis_cache').clear();
     tx.objectStore('predictions_log').clear();
-    tx.objectStore('app_settings').clear();
+    // [SECURITY] لا نمسح app_settings — pin_hash محمي
 
     // إضافة البيانات الجديدة
     if (data.packages) data.packages.forEach(item => tx.objectStore('packages').put(item));
     if (data.rounds) data.rounds.forEach(item => tx.objectStore('rounds').put(item));
     if (data.analysis_cache) data.analysis_cache.forEach(item => tx.objectStore('analysis_cache').put(item));
     if (data.predictions_log) data.predictions_log.forEach(item => tx.objectStore('predictions_log').put(item));
-    if (data.app_settings) data.app_settings.forEach(item => tx.objectStore('app_settings').put(item));
+    if (data.app_settings) {
+                    const PROTECTED_KEYS = ['pin_hash', 'login_attempts', 'lockout_until'];
+                    data.app_settings.forEach(item => {
+                        if (!PROTECTED_KEYS.includes(item.key)) {
+                            tx.objectStore('app_settings').put(item);
+                        }
+                    });
+                }
 
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);

@@ -7,21 +7,38 @@
 }
 
 :root {
-  --bg: linear-gradient(135deg, #2d1b4e 0%, #16213e 50%, #0f3460 100%);
-  --bg-solid: #16213e;
-  --bg-card: #1e2a47;
-  --bg-card-hover: #263449;
-  --bg-input: #0f172a;
-  --border: #334e68;
-  --gold: #f39c12;
-  --gold-light: #ffd166;
-  --gold-dark: #b9770e;
-  --text: #ffffff;
-  --text-muted: #94a3b8;
-  --success: #2ecc71;
-  --danger: #e74c3c;
-  --warning: #f39c12;
-  --accent-purple: #8b5cf6;
+    /* خلفية متدرجة - ليلية أنيقة */
+    --bg: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 30%, #2d1b4e 60%, #4a1d4f 100%);
+    --bg-solid: #0a0e27;
+    --bg-card: rgba(30, 41, 71, 0.65);
+    --bg-card-hover: rgba(38, 52, 89, 0.75);
+    --bg-input: rgba(10, 14, 39, 0.7);
+    --border: rgba(120, 140, 190, 0.25);
+    --border-strong: rgba(150, 170, 220, 0.4);
+    
+    /* ألوان الأكسنت */
+    --gold: #f0b429;
+    --gold-light: #ffd566;
+    --gold-dark: #a87d12;
+    --accent-purple: #a78bfa;
+    --accent-pink: #f472b6;
+    --accent-cyan: #67e8f9;
+    
+    /* نصوص */
+    --text: #eef2ff;
+    --text-muted: #94a3b8;
+    
+    /* حالات */
+    --success: #34d399;
+    --danger: #f87171;
+    --warning: #fbbf24;
+    
+    /* ظلال وتوهجات */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+    --glow-gold: 0 0 20px rgba(240, 180, 41, 0.4);
+    --glow-purple: 0 0 24px rgba(167, 139, 250, 0.5);
 }
 
 html, body {
@@ -633,4 +650,411 @@ h3 {
   .install-section {
     display: none;
   }
+}
+
+/* زر نسيت الرمز */
+.btn-forgot {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.btn-forgot:hover,
+.btn-forgot:active {
+    opacity: 1;
+    color: #ff6b6b;
+}
+
+/* ==========================================
+   🎨 التصميم الجديد — خلفية ليلية أنيقة
+   ========================================== */
+
+/* خلفية الطبقة الأساسية */
+html {
+    background: var(--bg-solid);
+    min-height: 100vh;
+}
+
+body {
+    background: var(--bg);
+    background-attachment: fixed;
+    background-size: 200% 200%;
+    animation: gradientShift 20s ease infinite;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* إضاءة خلفية (blobs) لإعطاء عمق */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body::before {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.5) 0%, transparent 70%);
+    top: -150px;
+    right: -100px;
+    animation: floatBlob 18s ease-in-out infinite alternate;
+}
+
+body::after {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(240, 180, 41, 0.25) 0%, transparent 70%);
+    bottom: -200px;
+    left: -150px;
+    animation: floatBlob 22s ease-in-out infinite alternate-reverse;
+}
+
+/* رفع كل المحتوى فوق الخلفيات */
+.screen,
+#main-app,
+#lock-screen {
+    position: relative;
+    z-index: 1;
+}
+
+/* تكييف الخلفيات الشفافة */
+.screen {
+    background: transparent !important;
+}
+
+#screen-home,
+#screen-data,
+#screen-prediction,
+#screen-stats {
+    background: transparent !important;
+}
+
+#lock-screen {
+    background: transparent !important;
+}
+
+/* ==========================================
+   ✨ Glassmorphism للكروت
+   ========================================== */
+
+.lock-box,
+.package-box,
+.entry-box,
+.input-box,
+.admin-box,
+.session-info,
+.prediction-box,
+.stat-card,
+.learning-toggle-box,
+.install-section {
+    background: var(--bg-card) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.package-box:hover,
+.entry-box:hover,
+.input-box:hover,
+.stat-card:hover,
+.menu-btn:hover {
+    border-color: var(--border-strong) !important;
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   🌟 تحسين النصوص والعناوين
+   ========================================== */
+
+.app-title {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--accent-pink) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 12px rgba(240, 180, 41, 0.3));
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+    color: var(--text-muted) !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 11px !important;
+    opacity: 0.8;
+}
+
+/* ==========================================
+   🎯 الأزرار الرئيسية — توهج أنيق
+   ========================================== */
+
+.btn-primary,
+.btn-save,
+.btn-install {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%) !important;
+    box-shadow: var(--shadow-md), var(--glow-gold) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover,
+.btn-save:hover,
+.btn-install:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-lg), 0 0 30px rgba(240, 180, 41, 0.6) !important;
+}
+
+.btn-primary:active,
+.btn-save:active,
+.btn-install:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* الأزرار الثانوية */
+.btn-secondary,
+.btn-back {
+    background: rgba(120, 140, 190, 0.15) !important;
+    border: 1px solid var(--border-strong) !important;
+    color: var(--text) !important;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+}
+
+.btn-secondary:hover,
+.btn-back:hover {
+    background: rgba(120, 140, 190, 0.25) !important;
+    border-color: var(--gold) !important;
+}
+
+/* أزرار صح/خطأ */
+.btn-correct {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.35) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-wrong {
+    background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+    box-shadow: 0 0 20px rgba(248, 113, 113, 0.35) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-correct:hover,
+.btn-wrong:hover {
+    transform: translateY(-2px) scale(1.03);
+    filter: brightness(1.1);
+}
+
+/* زر التوقف */
+.btn-stop {
+    background: rgba(248, 113, 113, 0.15) !important;
+    border: 2px solid var(--danger) !important;
+    color: var(--danger) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-stop:hover {
+    background: var(--danger) !important;
+    color: white !important;
+}
+
+/* ==========================================
+   💎 حقول الإدخال
+   ========================================== */
+
+.input-group input,
+.pin-input,
+#data-date,
+#data-day,
+#data-round,
+#data-item,
+#data-hour,
+#data-minute,
+#pred-round,
+#pred-item,
+#pred-hour,
+#pred-minute {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border) !important;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+    color: var(--text) !important;
+}
+
+.input-group input:focus,
+.pin-input:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.15), 0 0 20px rgba(240, 180, 41, 0.2) !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    outline: none;
+}
+
+/* ==========================================
+   📊 بطاقات الإحصائيات
+   ========================================== */
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(30, 41, 71, 0.7) 0%, rgba(45, 27, 78, 0.7) 100%) !important;
+    border: 1px solid var(--border) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-purple), var(--gold), var(--accent-pink));
+    opacity: 0.7;
+}
+
+.stat-value {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 8px rgba(240, 180, 41, 0.3));
+    font-weight: 800 !important;
+}
+
+/* ==========================================
+   🎴 أزرار القائمة الرئيسية
+   ========================================== */
+
+.menu-btn {
+    background: linear-gradient(135deg, rgba(30, 41, 71, 0.7) 0%, rgba(45, 27, 78, 0.7) 100%) !important;
+    border: 1px solid var(--border) !important;
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--gold) 100%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: -1;
+}
+
+.menu-btn:hover {
+    transform: translateX(-4px) translateY(-2px);
+    border-color: var(--gold) !important;
+    box-shadow: var(--shadow-lg), var(--glow-purple) !important;
+}
+
+.menu-title {
+    color: var(--gold-light) !important;
+    font-weight: 700;
+}
+
+/* ==========================================
+   🔮 Modal
+   ========================================== */
+
+.modal-box {
+    background: linear-gradient(135deg, rgba(30, 41, 71, 0.95) 0%, rgba(45, 27, 78, 0.95) 100%) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong) !important;
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(167, 139, 250, 0.2) !important;
+    animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay {
+    background: rgba(5, 8, 20, 0.85) !important;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease;
+}
+
+/* ==========================================
+   ✨ Animations
+   ========================================== */
+
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes floatBlob {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(60px, -40px) scale(1.15); }
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* تأثير دخول الشاشات */
+.screen.active {
+    animation: screenIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes screenIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================
+   🎯 شاشة القفل — لمسة خاصة
+   ========================================== */
+
+.lock-box {
+    background: linear-gradient(135deg, rgba(30, 41, 71, 0.85) 0%, rgba(45, 27, 78, 0.85) 100%) !important;
+    border: 1px solid var(--border-strong) !important;
+    box-shadow: var(--shadow-lg), 0 0 60px rgba(167, 139, 250, 0.25) !important;
+}
+
+/* ==========================================
+   📱 استجابة الشاشات الصغيرة
+   ========================================== */
+
+@media (max-width: 480px) {
+    body::before,
+    body::after {
+        filter: blur(60px);
+        opacity: 0.25;
+    }
+}
+
+/* احترام تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

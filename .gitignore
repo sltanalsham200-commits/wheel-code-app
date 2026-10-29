@@ -1,0 +1,14 @@
+# احتياطيات
+*.bak
+*.bak2
+*.bak3
+
+# أيقونة الأصل الكبيرة
+icon-original.png
+
+# wrangler cache
+.wrangler/
+
+# نظام
+.DS_Store
+node_modules/

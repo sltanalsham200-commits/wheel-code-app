@@ -17,8 +17,10 @@ let previousPackage = null;
 async function initData() {
   const packages = await DB.getAll('packages');
   if (packages.length > 0) {
-    previousPackage = packages[packages.length - 1];
-  }
+        previousPackage = packages[packages.length - 1];
+    } else {
+        previousPackage = null;
+    }
   updateCounterDisplay();
   await updateKnownItems();
 }
@@ -53,12 +55,35 @@ async function handleAddRound() {
   currentPackage.day = dayVal;
 
   // إضافة الجولة إلى الذاكرة المؤقتة
-  currentPackage.rounds.push({
-    round_number: parseInt(roundVal),
-    item_name: itemVal,
-    hour: hourVal ? parseInt(hourVal) : null,
-    minute: minuteVal ? parseInt(minuteVal) : null
-  });
+  // التحقق من صحة الأرقام
+        const roundNum = parseInt(roundVal, 10);
+        if (!Number.isInteger(roundNum) || roundNum < 1) {
+            alert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
+            return;
+        }
+        let hourNum = null;
+        if (hourVal !== '') {
+            hourNum = parseInt(hourVal, 10);
+            if (!Number.isInteger(hourNum) || hourNum < 0 || hourNum > 23) {
+                alert('الساعة يجب أن تكون بين 0 و 23');
+                return;
+            }
+        }
+        let minuteNum = null;
+        if (minuteVal !== '') {
+            minuteNum = parseInt(minuteVal, 10);
+            if (!Number.isInteger(minuteNum) || minuteNum < 0 || minuteNum > 59) {
+                alert('الدقيقة يجب أن تكون بين 0 و 59');
+                return;
+            }
+        }
+        
+        currentPackage.rounds.push({
+            round_number: roundNum,
+            item_name: itemVal,
+            hour: hourNum,
+            minute: minuteNum
+        });
 
   // تحديث العداد
   updateCounterDisplay();
@@ -120,7 +145,9 @@ async function handleSavePackage() {
     Analysis.run().catch(err => console.warn('Analysis error:', err));
   }
 
-  // إعادة تعيين الحزمة الحالية
+  const roundsCount = currentPackage.rounds.length;
+
+// إعادة تعيين الحزمة الحالية
   currentPackage = {
     date: '',
     day: '',
@@ -132,7 +159,7 @@ async function handleSavePackage() {
   document.getElementById('data-day').value = '';
   updateCounterDisplay();
 
-  alert('تم حفظ الحزمة بنجاح (' + packageData.rounds?.length + ' جولة). يمكنك بدء حزمة جديدة.');
+  alert('تم حفظ الحزمة بنجاح (' + roundsCount + ' جولة). يمكنك بدء حزمة جديدة.');
 }
 
 // تحديث قائمة العناصر المعروفة (datalist)
@@ -140,7 +167,12 @@ async function updateKnownItems() {
   const rounds = await DB.getAll('rounds');
   const items = [...new Set(rounds.map(r => r.item_name))].filter(Boolean);
   const datalist = document.getElementById('known-items');
-  datalist.innerHTML = items.map(item => `<option value="${item}">`).join('');
+  datalist.innerHTML = '';
+    items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        datalist.appendChild(opt);
+    });
 }
 
 // سؤال الاستمرارية
@@ -176,7 +208,18 @@ function bindDataEvents() {
 }
 
 // تصدير
+function resetData() {
+    currentPackage = { date: '', day: '', rounds: [], is_continuous: null };
+    previousPackage = null;
+    updateCounterDisplay();
+    const dateInput = document.getElementById('data-date');
+    const dayInput = document.getElementById('data-day');
+    if (dateInput) dateInput.value = '';
+    if (dayInput) dayInput.value = '';
+}
+
 window.Data = {
   init: initData,
-  bind: bindDataEvents
+  bind: bindDataEvents,
+    reset: resetData
 };

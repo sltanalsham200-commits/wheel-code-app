@@ -45,7 +45,12 @@ async function refreshKnownItemsDatalist() {
   const rounds = await DB.getAll('rounds');
   const items = [...new Set(rounds.map(r => r.item_name))].filter(Boolean);
   const datalist = document.getElementById('known-items');
-  if (datalist) datalist.innerHTML = items.map(item => `<option value="${item}">`).join('');
+  if (datalist) datalist.innerHTML = '';
+    items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        datalist.appendChild(opt);
+    });
 }
 
 // بدء الجلسة
@@ -61,10 +66,32 @@ async function handleStartSession() {
   await refreshLearningStatus();
 
   sessionState.active = true;
-  sessionState.currentRound = parseInt(roundVal);
-  sessionState.currentItem = itemVal;
-  sessionState.currentHour = hourVal ? parseInt(hourVal) : null;
-  sessionState.currentMinute = minuteVal ? parseInt(minuteVal) : null;
+  const roundNum = parseInt(roundVal, 10);
+        if (!Number.isInteger(roundNum) || roundNum < 1) {
+            alert('رقم الجولة يجب أن يكون رقماً صحيحاً موجباً');
+            return;
+        }
+        let hourNum = null;
+        if (hourVal !== '') {
+            hourNum = parseInt(hourVal, 10);
+            if (!Number.isInteger(hourNum) || hourNum < 0 || hourNum > 23) {
+                alert('الساعة يجب أن تكون بين 0 و 23');
+                return;
+            }
+        }
+        let minuteNum = null;
+        if (minuteVal !== '') {
+            minuteNum = parseInt(minuteVal, 10);
+            if (!Number.isInteger(minuteNum) || minuteNum < 0 || minuteNum > 59) {
+                alert('الدقيقة يجب أن تكون بين 0 و 59');
+                return;
+            }
+        }
+        
+        sessionState.currentRound = roundNum;
+        sessionState.currentItem = itemVal;
+        sessionState.currentHour = hourNum;
+        sessionState.currentMinute = minuteNum;
   sessionState.pendingPrediction = null;
   sessionState.correctCount = 0;
   sessionState.totalCount = 0;
@@ -129,14 +156,7 @@ async function _savePredictionOutcome(predicted, actual, isCorrect) {
     created_at: Date.now()
   });
 
-  await DB.add('rounds', {
-    package_id: null,
-    round_number: predicted.round_number,
-    item_name: actual,
-    hour: null,
-    minute: null,
-    is_prediction_source: true
-  });
+  // [FIX-B1] تم إيقاف إضافة التوقعات إلى rounds لمنع تلوث البيانات
 }
 
 // معالجة زر "صح"
@@ -157,7 +177,8 @@ async function handleCorrect() {
   sessionState.currentItem = pred.predicted_item;
   sessionState.pendingPrediction = null;
 
-  await _generateNextPrediction();
+    _updateTimeFromInputs();
+    await _generateNextPrediction();
 }
 
 // معالجة زر "خطأ"
@@ -180,7 +201,8 @@ async function handleWrong() {
   sessionState.currentItem = actualItem;
   sessionState.pendingPrediction = null;
 
-  await _generateNextPrediction();
+    _updateTimeFromInputs();
+    await _generateNextPrediction();
 }
 
 // معالجة زر "التالي" (وضع التعلم موقوف)
@@ -192,7 +214,8 @@ async function handleNext() {
   sessionState.currentItem = pred.predicted_item;
   sessionState.pendingPrediction = null;
 
-  await _generateNextPrediction();
+    _updateTimeFromInputs();
+    await _generateNextPrediction();
 }
 
 // معالجة زر "ستوب"
@@ -249,6 +272,30 @@ function askActualItem() {
 
     modal.classList.remove('hidden');
   });
+}
+
+// [FIX-C2] قراءة hour/minute من الحقول قبل التوقع
+function _updateTimeFromInputs() {
+    const hourEl = document.getElementById('pred-hour');
+    const minuteEl = document.getElementById('pred-minute');
+    if (hourEl) {
+        const h = hourEl.value.trim();
+        if (h !== '') {
+            const n = parseInt(h, 10);
+            sessionState.currentHour = (Number.isInteger(n) && n >= 0 && n <= 23) ? n : null;
+        } else {
+            sessionState.currentHour = null;
+        }
+    }
+    if (minuteEl) {
+        const m = minuteEl.value.trim();
+        if (m !== '') {
+            const n = parseInt(m, 10);
+            sessionState.currentMinute = (Number.isInteger(n) && n >= 0 && n <= 59) ? n : null;
+        } else {
+            sessionState.currentMinute = null;
+        }
+    }
 }
 
 // ربط الأحداث

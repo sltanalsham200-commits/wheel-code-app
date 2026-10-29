@@ -22,7 +22,8 @@ const Analysis = {
   // 1. تحميل كل الجولات مع معلومات الحزم
   // ==========================================
   async _loadAllRounds() {
-    const rounds = await DB.getAll('rounds');
+            const allRounds = await DB.getAll("rounds");
+            const rounds = allRounds.filter(r => r.is_prediction_source !== true);
     const packages = await DB.getAll('packages');
     const pkgMap = {};
     packages.forEach(p => pkgMap[p.id] = p);
@@ -307,11 +308,21 @@ const Analysis = {
       }
     }
 
-    return {
-      predicted_item: best,
-      score: best ? contributions[best].total : 0,
-      breakdown: best ? contributions[best].breakdown : {}
-    };
+    // [FIX-C5] تطبيع score إلى [0,1]
+        let activeWeightSum = 0;
+        if (best) {
+            for (const dim in contributions[best].breakdown) {
+                activeWeightSum += (weights[dim] || 0);
+            }
+        }
+        const normalizedScore = (best && activeWeightSum > 0)
+            ? contributions[best].total / activeWeightSum
+            : 0;
+        return {
+            predicted_item: best,
+            score: normalizedScore,
+            breakdown: best ? contributions[best].breakdown : {}
+        };
   },
 
   // ==========================================

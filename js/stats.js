@@ -17,7 +17,8 @@ async function refreshStats() {
 
     // 2. عدد الجولات الكلي
     const rounds = await DB.getAll('rounds');
-    document.getElementById('stats-total-rounds').innerText = rounds.length;
+        const userRounds = rounds.filter(r => r.is_prediction_source !== true);
+        document.getElementById('stats-total-rounds').innerText = userRounds.length;
 
     // 3. عدد الحزم
     const packages = await DB.getAll('packages');
@@ -146,6 +147,9 @@ async function handleClearAll() {
   if (!doubleConfirm) return;
 
   await DB.clearAll();
+
+            // [FIX-B5] إعادة تعيين الحالة في الذاكرة
+            if (typeof Data !== 'undefined' && Data.reset) Data.reset();
 
   // إعادة تعيين الأوزان
   await DB.put('app_settings', { key: 'dimension_weights', value: null });
