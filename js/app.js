@@ -88,6 +88,75 @@ window.addEventListener('beforeunload', (event) => {
   }
 });
 
+// ==========================================
+// منطق تثبيت التطبيق (PWA Install)
+// ==========================================
+
+let deferredInstallPrompt = null;
+
+// هل التطبيق مثبت بالفعل؟
+function isAppInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
+// هل المستخدم على iOS؟
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+// تفعيل زر التثبيت عند توفر المتطلبات
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log('PWA: التثبيت متاح');
+});
+
+// معالجة الضغط على زر التثبيت
+function setupInstallButton() {
+  const installBtn = document.getElementById('btn-install');
+  const installHint = document.getElementById('install-hint');
+  if (!installBtn) return;
+
+  installBtn.addEventListener('click', async () => {
+    // حالة 1: التطبيق مثبت
+    if (isAppInstalled()) {
+      alert('التطبيق مثبت بالفعل على شاشة هاتفك.');
+      return;
+    }
+
+    // حالة 2: iOS → تعليمات
+    if (isIOS()) {
+      installHint.classList.remove('hidden');
+      return;
+    }
+
+    // حالة 3: Android مع prompt متاح
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      console.log('PWA: نتيجة التثبيت =', outcome);
+      deferredInstallPrompt = null;
+      if (outcome === 'accepted') {
+        installBtn.innerText = 'تم التثبيت ✔';
+        installBtn.disabled = true;
+      }
+    } else {
+      // حالة 4: المتصفح لا يدعم التثبيت التلقائي
+      alert('لتثبيت التطبيق:\n\n1. افتح القائمة (⋮) في Chrome\n2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"\n\nأو استخدم Safari على الآيفون ثم زر المشاركة.');
+    }
+  });
+}
+
+// تأكيد بعد التثبيت
+window.addEventListener('appinstalled', () => {
+  console.log('PWA: تم التثبيت بنجاح');
+  deferredInstallPrompt = null;
+});
+
+// تفعيل زر التثبيت عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', setupInstallButton);
+
 // إتاحة showScreen عالمياً (للاستخدام في أي مكان)
 window.showScreen = showScreen;
 window.initApp = initApp;
